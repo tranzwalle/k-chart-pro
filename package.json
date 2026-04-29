@@ -1,5 +1,5 @@
 {
-  "name": "@tranzwalle/klinecharts-pro",
+  "name": "k-chart-pro",
   "version": "0.2.0",
   "description": "Financial chart built out of the box based on KLineChart.",
   "type": "module",
