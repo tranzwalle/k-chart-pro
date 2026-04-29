@@ -211,6 +211,38 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
       }
     })
 
+    widget?.setDataLoader({
+      getBars: async (params) => {
+        if (loading) return
+        loading = true
+        setLoadingVisible(true)
+        const { type, timestamp, callback } = params
+        const s = symbol()
+        const p = period()
+        try {
+          if (type === 'init' || type === 'forward') {
+            const [from, to] = adjustFromTo(p, new Date().getTime(), 500)
+            const kLineDataList = await props.datafeed.getHistoryKLineData(s, p, from, to)
+            callback(kLineDataList, kLineDataList.length > 0)
+          } else if (type === 'backward') {
+            const [to] = adjustFromTo(p, timestamp!, 1)
+            const [from] = adjustFromTo(p, to, 500)
+            const kLineDataList = await props.datafeed.getHistoryKLineData(s, p, from, to)
+            callback(kLineDataList, kLineDataList.length > 0)
+          }
+        } finally {
+          loading = false
+          setLoadingVisible(false)
+        }
+      },
+      subscribeBar: (params) => {
+        props.datafeed.subscribe(symbol(), period(), params.callback)
+      },
+      unsubscribeBar: (params) => {
+        props.datafeed.unsubscribe(symbol(), period())
+      }
+    })
+
     if (widget) {
       const watermarkContainer = widget.getDom('candle_pane', DomPosition.Main)
       if (watermarkContainer) {
@@ -243,19 +275,8 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
       }
     })
     setSubIndicators(subIndicatorMap)
-    widget?.loadMore(timestamp => {
-      loading = true
-      const get = async () => {
-        const p = period()
-        const [to] = adjustFromTo(p, timestamp!, 1)
-        const [from] = adjustFromTo(p, to, 500)
-        const kLineDataList = await props.datafeed.getHistoryKLineData(symbol(), p, from, to)
-        widget?.applyMoreData(kLineDataList, kLineDataList.length > 0)
-        loading = false
-      }
-      get()
-    })
-    widget?.subscribeAction(ActionType.OnTooltipIconClick, (data) => {
+
+    widget?.subscribeAction('onCandleTooltipFeatureClick', (data) => {
       if (data.indicatorName) {
         switch (data.iconId) {
           case 'visible': {
@@ -309,28 +330,21 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
   })
 
   createEffect((prev?: PrevSymbolPeriod) => {
-    if (!loading) {
-      if (prev) {
-        props.datafeed.unsubscribe(prev.symbol, prev.period)
-      }
-      const s = symbol()
-      const p = period()
-      loading = true
-      setLoadingVisible(true)
-      const get = async () => {
-        const [from, to] = adjustFromTo(p, new Date().getTime(), 500)
-        const kLineDataList = await props.datafeed.getHistoryKLineData(s, p, from, to)
-        widget?.applyNewData(kLineDataList, kLineDataList.length > 0)
-        props.datafeed.subscribe(s, p, data => {
-          widget?.updateData(data)
-        })
-        loading = false
-        setLoadingVisible(false)
-      }
-      get()
-      return { symbol: s, period: p }
+    const s = symbol()
+    const p = period()
+    if (prev) {
+      props.datafeed.unsubscribe(prev.symbol, prev.period)
     }
-    return prev
+    widget?.setSymbol({
+      ticker: s.ticker,
+      pricePrecision: s.pricePrecision,
+      volumePrecision: s.volumePrecision
+    })
+    widget?.setPeriod({
+      type: p.timespan as any,
+      span: p.multiplier
+    })
+    return { symbol: s, period: p }
   })
 
   createEffect(() => {
