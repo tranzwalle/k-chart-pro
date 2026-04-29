@@ -18,12 +18,12 @@ import { Modal, List, Input } from '../../component'
 
 import i18n from '../../i18n'
 
-import { SymbolInfo, Datafeed } from '../../types'
+import { SymbolOptions, Datafeed } from '../../types'
 
 export interface SymbolSearchModalProps {
   locale: string
   datafeed: Datafeed
-  onSymbolSelected: (symbol: SymbolInfo) => void
+  onSymbolSelected: (symbol: SymbolOptions) => void
   onClose: () => void
 }
 
@@ -54,7 +54,7 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = props => {
         class="klinecharts-pro-symbol-search-modal-list"
         loading={symbolList.loading}
         dataSource={symbolList() ?? []}
-        renderItem={(symbol: SymbolInfo) => (
+        renderItem={(symbol: SymbolOptions) => (
           <li
             onClick={() => {
               props.onSymbolSelected(symbol)

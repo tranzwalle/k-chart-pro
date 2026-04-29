@@ -14,19 +14,19 @@
 
 import { Component, Show, createSignal, onMount, onCleanup } from 'solid-js'
 
-import { SymbolInfo, Period } from '../../types'
+import { SymbolOptions, PeriodOptions } from '../../types'
 
 import i18n from '../../i18n'
 
 export interface PeriodBarProps {
   locale: string
   spread: boolean
-  symbol: SymbolInfo
-  period: Period
-  periods: Period[]
+  symbol: SymbolOptions
+  period: PeriodOptions
+  periods: PeriodOptions[]
   onMenuClick: () => void
   onSymbolClick: () => void
-  onPeriodChange: (period: Period) => void
+  onPeriodChange: (period: PeriodOptions) => void
   onIndicatorClick: () => void
   onTimezoneClick: () => void
   onSettingClick: () => void

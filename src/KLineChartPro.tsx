@@ -18,7 +18,7 @@ import { utils, Nullable, DeepPartial, Styles } from 'klinecharts'
 
 import ChartProComponent from './ChartProComponent'
 
-import { SymbolInfo, Period, ChartPro, ChartProOptions } from './types'
+import { SymbolOptions, PeriodOptions, ChartPro, ChartProOptions } from './types'
 
 const Logo = (
   <svg class="logo" viewBox="0 0 80 92">
@@ -113,19 +113,19 @@ export default class KLineChartPro implements ChartPro {
     return this._chartApi!.getTimezone()
   }
 
-  setSymbol (symbol: SymbolInfo): void {
+  setSymbol (symbol: SymbolOptions): void {
     this._chartApi!.setSymbol(symbol)
   }
 
-  getSymbol (): SymbolInfo {
+  getSymbol (): SymbolOptions {
     return this._chartApi!.getSymbol()
   }
 
-  setPeriod (period: Period): void {
+  setPeriod (period: PeriodOptions): void {
     this._chartApi!.setPeriod(period)
   }
 
-  getPeriod (): Period {
+  getPeriod (): PeriodOptions {
     return this._chartApi!.getPeriod()
   }
 }

@@ -16,7 +16,7 @@ import { createSignal, createEffect, onMount, Show, onCleanup, startTransition, 
 
 import {
   init, dispose, utils, Nullable, Chart, OverlayMode, Styles,
-  TooltipIconPosition, ActionType, PaneOptions, Indicator, DomPosition, FormatDateType
+  TooltipFeaturePosition, ActionType, PaneOptions, Indicator, DomPosition, FormatDateType
 } from 'klinecharts'
 
 import lodashSet from 'lodash/set'
@@ -31,15 +31,15 @@ import {
 
 import { translateTimezone } from './widget/timezone-modal/data'
 
-import { SymbolInfo, Period, ChartProOptions, ChartPro } from './types'
+import { SymbolOptions, PeriodOptions, ChartProOptions, ChartPro } from './types'
 
 export interface ChartProComponentProps extends Required<Omit<ChartProOptions, 'container'>> {
   ref: (chart: ChartPro) => void
 }
 
 interface PrevSymbolPeriod {
-  symbol: SymbolInfo
-  period: Period
+  symbol: SymbolOptions
+  period: PeriodOptions
 }
 
 function createIndicator (widget: Nullable<Chart>, indicatorName: string, isStack?: boolean, paneOptions?: PaneOptions): Nullable<string> {
@@ -120,7 +120,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
     widget?.resize()
   }
 
-  const adjustFromTo = (period: Period, toTimestamp: number, count: number) => {
+  const adjustFromTo = (period: PeriodOptions, toTimestamp: number, count: number) => {
     let to = toTimestamp
     let from = to
     switch (period.timespan) {

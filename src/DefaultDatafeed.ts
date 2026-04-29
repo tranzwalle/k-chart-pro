@@ -14,7 +14,7 @@
 
 import { KLineData } from 'klinecharts'
 
-import { Datafeed, SymbolInfo, Period, DatafeedSubscribeCallback } from './types'
+import { Datafeed, SymbolOptions, PeriodOptions, DatafeedSubscribeCallback } from './types'
 
 
 export default class DefaultDatafeed implements Datafeed {
@@ -28,7 +28,7 @@ export default class DefaultDatafeed implements Datafeed {
 
   private _ws?: WebSocket
 
-  async searchSymbols (search?: string): Promise<SymbolInfo[]> {
+  async searchSymbols (search?: string): Promise<SymbolOptions[]> {
     const response = await fetch(`https://api.polygon.io/v3/reference/tickers?apiKey=${this._apiKey}&active=true&search=${search ?? ''}`)
     const result = await response.json()
     return await (result.results || []).map((data: any) => ({
@@ -43,7 +43,7 @@ export default class DefaultDatafeed implements Datafeed {
     }))
   }
 
-  async getHistoryKLineData (symbol: SymbolInfo, period: Period, from: number, to: number): Promise<KLineData[]> {
+  async getHistoryKLineData (symbol: SymbolOptions, period: PeriodOptions, from: number, to: number): Promise<KLineData[]> {
     const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol.ticker}/range/${period.multiplier}/${period.timespan}/${from}/${to}?apiKey=${this._apiKey}`)
     const result = await response.json()
     return await (result.results || []).map((data: any) => ({
@@ -57,7 +57,7 @@ export default class DefaultDatafeed implements Datafeed {
     }))
   }
 
-  subscribe (symbol: SymbolInfo, period: Period, callback: DatafeedSubscribeCallback): void {
+  subscribe (symbol: SymbolOptions, period: PeriodOptions, callback: DatafeedSubscribeCallback): void {
     if (this._prevSymbolMarket !== symbol.market) {
       this._ws?.close()
       this._ws = new WebSocket(`wss://delayed.polygon.io/${symbol.market}`)
@@ -90,6 +90,6 @@ export default class DefaultDatafeed implements Datafeed {
     this._prevSymbolMarket = symbol.market
   }
 
-  unsubscribe(symbol: SymbolInfo, period: Period): void {
+  unsubscribe(symbol: SymbolOptions, period: PeriodOptions): void {
   }
 }
