@@ -16,7 +16,7 @@ import { createSignal, createEffect, onMount, Show, onCleanup, startTransition, 
 
 import {
   init, dispose, utils, Nullable, Chart, OverlayMode, Styles,
-  PaneOptions, Indicator, DomPosition
+  TooltipFeaturePosition, ActionType, PaneOptions, Indicator, FormatDateType
 } from 'klinecharts'
 
 import lodashSet from 'lodash/set'
@@ -44,7 +44,7 @@ interface PrevSymbolPeriod {
 
 function createIndicator (widget: Nullable<Chart>, indicatorName: string, isStack?: boolean, paneOptions?: PaneOptions): Nullable<string> {
   if (indicatorName === 'VOL') {
-    paneOptions = { gap: { bottom: 2 }, ...paneOptions }
+    paneOptions = { ...paneOptions }
   }
   return widget?.createIndicator({
     name: indicatorName,
@@ -244,7 +244,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
     })
 
     if (widget) {
-      const watermarkContainer = widget.getDom('candle_pane', DomPosition.Main)
+      const watermarkContainer = widget.getDom('candle_pane', 'main')
       if (watermarkContainer) {
         let watermark = document.createElement('div')
         watermark.className = 'klinecharts-pro-watermark'
@@ -257,7 +257,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
         watermarkContainer.appendChild(watermark)
       }
 
-      const priceUnitContainer = widget.getDom('candle_pane', DomPosition.YAxis)
+      const priceUnitContainer = widget.getDom('candle_pane', 'yAxis')
       priceUnitDom = document.createElement('span')
       priceUnitDom.className = 'klinecharts-pro-price-unit'
       priceUnitContainer?.appendChild(priceUnitDom)
@@ -276,15 +276,15 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
     })
     setSubIndicators(subIndicatorMap)
 
-    widget?.subscribeAction('onCandleTooltipFeatureClick', (data) => {
+    widget?.subscribeAction('onCandleTooltipFeatureClick', (data: any) => {
       if (data.indicatorName) {
         switch (data.featureId) {
           case 'visible': {
-            widget?.overrideIndicator({ name: data.indicatorName, visible: true }, data.paneId)
+            widget?.overrideIndicator({ name: data.indicatorName, visible: true, paneId: data.paneId })
             break
           }
           case 'invisible': {
-            widget?.overrideIndicator({ name: data.indicatorName, visible: false }, data.paneId)
+            widget?.overrideIndicator({ name: data.indicatorName, visible: false, paneId: data.paneId })
             break
           }
           case 'setting': {
@@ -371,8 +371,8 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               paddingTop: 0,
               paddingRight: 0,
               paddingBottom: 0,
-              icon: '\ue903',
-              fontFamily: 'icomoon',
+              type: 'icon_font',
+              content: { family: 'icomoon', code: '\ue903' },
               size: 14,
               color: color,
               activeColor: color,
@@ -390,8 +390,8 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               paddingTop: 0,
               paddingRight: 0,
               paddingBottom: 0,
-              icon: '\ue901',
-              fontFamily: 'icomoon',
+              type: 'icon_font',
+              content: { family: 'icomoon', code: '\ue901' },
               size: 14,
               color: color,
               activeColor: color,
@@ -409,8 +409,8 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               paddingTop: 0,
               paddingRight: 0,
               paddingBottom: 0,
-              icon: '\ue902',
-              fontFamily: 'icomoon',
+              type: 'icon_font',
+              content: { family: 'icomoon', code: '\ue902' },
               size: 14,
               color: color,
               activeColor: color,
@@ -428,8 +428,8 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               paddingTop: 0,
               paddingRight: 0,
               paddingBottom: 0,
-              icon: '\ue900',
-              fontFamily: 'icomoon',
+              type: 'icon_font',
+              content: { family: 'icomoon', code: '\ue900' },
               size: 14,
               color: color,
               activeColor: color,
@@ -542,7 +542,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
           onClose={() => { setIndicatorSettingModalParams({ visible: false, indicatorName: '', paneId: '', calcParams: [] }) }}
           onConfirm={(params)=> {
             const modalParams = indicatorSettingModalParams()
-            widget?.overrideIndicator({ name: modalParams.indicatorName, calcParams: params }, modalParams.paneId)
+            widget?.overrideIndicator({ name: modalParams.indicatorName, calcParams: params, paneId: modalParams.paneId })
           }}
         />
       </Show>
