@@ -288,21 +288,22 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
             break
           }
           case 'setting': {
-            const indicator = widget?.getIndicatorByPaneId(data.paneId, data.indicatorName) as Indicator
+            const indicators = widget?.getIndicators({ paneId: data.paneId, name: data.indicatorName })
+            const indicator = indicators?.[0] as Indicator | undefined
             setIndicatorSettingModalParams({
-              visible: true, indicatorName: data.indicatorName, paneId: data.paneId, calcParams: indicator.calcParams
+              visible: true, indicatorName: data.indicatorName, paneId: data.paneId, calcParams: indicator?.calcParams ?? []
             })
             break
           }
           case 'close': {
             if (data.paneId === 'candle_pane') {
               const newMainIndicators = [...mainIndicators()]
-              widget?.removeIndicator('candle_pane', data.indicatorName)
+              widget?.removeIndicator({ paneId: 'candle_pane', name: data.indicatorName })
               newMainIndicators.splice(newMainIndicators.indexOf(data.indicatorName), 1)
               setMainIndicators(newMainIndicators)
             } else {
               const newIndicators = { ...subIndicators() }
-              widget?.removeIndicator(data.paneId, data.indicatorName)
+              widget?.removeIndicator({ paneId: data.paneId, name: data.indicatorName })
               // @ts-expect-error
               delete newIndicators[data.indicatorName]
               setSubIndicators(newIndicators)
@@ -326,7 +327,11 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
     } else {
       priceUnitDom.style.display = 'none'
     }
-    widget?.setPriceVolumePrecision(s?.pricePrecision ?? 2, s?.volumePrecision ?? 0)
+    widget?.setSymbol({
+      ticker: s?.ticker ?? '',
+      pricePrecision: s?.pricePrecision ?? 2,
+      volumePrecision: s?.volumePrecision ?? 0
+    })
   })
 
   createEffect((prev?: PrevSymbolPeriod) => {
@@ -474,7 +479,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               createIndicator(widget, data.name, true, { id: 'candle_pane' })
               newMainIndicators.push(data.name)
             } else {
-              widget?.removeIndicator('candle_pane', data.name)
+              widget?.removeIndicator({ paneId: 'candle_pane', name: data.name })
               newMainIndicators.splice(newMainIndicators.indexOf(data.name), 1)
             }
             setMainIndicators(newMainIndicators)
@@ -489,7 +494,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               }
             } else {
               if (data.paneId) {
-                widget?.removeIndicator(data.paneId, data.name)
+                widget?.removeIndicator({ paneId: data.paneId, name: data.name })
                 // @ts-expect-error
                 delete newSubIndicators[data.name]
               }
