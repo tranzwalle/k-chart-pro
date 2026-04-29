@@ -16,7 +16,7 @@ import { createSignal, createEffect, onMount, Show, onCleanup, startTransition, 
 
 import {
   init, dispose, utils, Nullable, Chart, OverlayMode, Styles,
-  TooltipFeaturePosition, ActionType, PaneOptions, Indicator, DomPosition, FormatDateType
+  TooltipFeaturePosition, ActionType, PaneOptions, Indicator, DomPosition
 } from 'klinecharts'
 
 import lodashSet from 'lodash/set'
@@ -175,18 +175,18 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
   onMount(() => {
     window.addEventListener('resize', documentResize)
     widget = init(widgetRef!, {
-      customApi: {
-        formatDate: (dateTimeFormat: Intl.DateTimeFormat, timestamp, format: string, type: FormatDateType) => {
+      formatter: {
+        formatDate: ({ dateTimeFormat, timestamp, template, type }: { dateTimeFormat: Intl.DateTimeFormat; timestamp: number; template: string; type: 'tooltip' | 'crosshair' | 'xAxis' }) => {
           const p = period()
           switch (p.timespan) {
             case 'minute': {
-              if (type === FormatDateType.XAxis) {
+              if (type === 'xAxis') {
                 return utils.formatDate(dateTimeFormat, timestamp, 'HH:mm')
               }
               return utils.formatDate(dateTimeFormat, timestamp, 'YYYY-MM-DD HH:mm')
             }
             case 'hour': {
-              if (type === FormatDateType.XAxis) {
+              if (type === 'xAxis') {
                 return utils.formatDate(dateTimeFormat, timestamp, 'MM-DD HH:mm')
               }
               return utils.formatDate(dateTimeFormat, timestamp, 'YYYY-MM-DD HH:mm')
@@ -194,13 +194,13 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
             case 'day':
             case 'week': return utils.formatDate(dateTimeFormat, timestamp, 'YYYY-MM-DD')
             case 'month': {
-              if (type === FormatDateType.XAxis) {
+              if (type === 'xAxis') {
                 return utils.formatDate(dateTimeFormat, timestamp, 'YYYY-MM')
               }
               return utils.formatDate(dateTimeFormat, timestamp, 'YYYY-MM-DD')
             }
             case 'year': {
-              if (type === FormatDateType.XAxis) {
+              if (type === 'xAxis') {
                 return utils.formatDate(dateTimeFormat, timestamp, 'YYYY')
               }
               return utils.formatDate(dateTimeFormat, timestamp, 'YYYY-MM-DD')
