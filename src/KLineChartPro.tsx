@@ -46,7 +46,7 @@ export default class KLineChartPro implements ChartPro {
         <ChartProComponent
           ref={(chart: ChartPro) => { this._chartApi = chart }}
           styles={options.styles ?? {}}
-          watermark={options.watermark ?? (Logo as Node)}
+          watermark={options.watermark}
           theme={options.theme ?? 'light'}
           locale={options.locale ?? 'zh-CN'}
           drawingBarVisible={options.drawingBarVisible ?? true}
@@ -54,21 +54,15 @@ export default class KLineChartPro implements ChartPro {
           period={options.period}
           periods={
             options.periods ?? [
-              { multiplier: 1, timespan: 'minute', text: '1m' },
-              { multiplier: 5, timespan: 'minute', text: '5m' },
-              { multiplier: 15, timespan: 'minute', text: '15m' },
               { multiplier: 1, timespan: 'hour', text: '1H' },
-              { multiplier: 2, timespan: 'hour', text: '2H' },
-              { multiplier: 4, timespan: 'hour', text: '4H' },
               { multiplier: 1, timespan: 'day', text: 'D' },
               { multiplier: 1, timespan: 'week', text: 'W' },
-              { multiplier: 1, timespan: 'month', text: 'M' },
-              { multiplier: 1, timespan: 'year', text: 'Y' }
+              { multiplier: 1, timespan: 'month', text: 'M' }
             ]
           }
           timezone={options.timezone ?? 'Asia/Shanghai'}
           mainIndicators={options.mainIndicators ?? ['MA']}
-          subIndicators={options.subIndicators ?? ['VOL']}
+          subIndicators={options.subIndicators ?? ['VOL', 'MACD', 'KDJ']}
           datafeed={options.datafeed}/>
       ),
       this._container
