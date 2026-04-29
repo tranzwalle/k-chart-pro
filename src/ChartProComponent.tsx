@@ -16,7 +16,7 @@ import { createSignal, createEffect, onMount, Show, onCleanup, startTransition, 
 
 import {
   init, dispose, utils, Nullable, Chart, OverlayMode, Styles,
-  TooltipFeaturePosition, ActionType, PaneOptions, Indicator, DomPosition
+  PaneOptions, Indicator, DomPosition
 } from 'klinecharts'
 
 import lodashSet from 'lodash/set'
@@ -52,15 +52,15 @@ function createIndicator (widget: Nullable<Chart>, indicatorName: string, isStac
     createTooltipDataSource: ({ indicator, defaultStyles }) => {
       const icons = []
       if (indicator.visible) {
-        icons.push(defaultStyles.tooltip.icons[1])
-        icons.push(defaultStyles.tooltip.icons[2])
-        icons.push(defaultStyles.tooltip.icons[3])
+        icons.push(defaultStyles.tooltip.features[1])
+        icons.push(defaultStyles.tooltip.features[2])
+        icons.push(defaultStyles.tooltip.features[3])
       } else {
-        icons.push(defaultStyles.tooltip.icons[0])
-        icons.push(defaultStyles.tooltip.icons[2])
-        icons.push(defaultStyles.tooltip.icons[3])
+        icons.push(defaultStyles.tooltip.features[0])
+        icons.push(defaultStyles.tooltip.features[2])
+        icons.push(defaultStyles.tooltip.features[3])
       }
-      return { icons }
+      return { features: icons, legends: [] }
     }
   }, isStack, paneOptions) ?? null
 }
@@ -278,7 +278,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
 
     widget?.subscribeAction('onCandleTooltipFeatureClick', (data) => {
       if (data.indicatorName) {
-        switch (data.iconId) {
+        switch (data.featureId) {
           case 'visible': {
             widget?.overrideIndicator({ name: data.indicatorName, visible: true }, data.paneId)
             break
@@ -354,10 +354,10 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
     widget?.setStyles({
       indicator: {
         tooltip: {
-          icons: [
+          features: [
             {
               id: 'visible',
-              position: TooltipIconPosition.Middle,
+              position: 'middle',
               marginLeft: 8,
               marginTop: 7,
               marginRight: 0,
@@ -376,7 +376,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
             },
             {
               id: 'invisible',
-              position: TooltipIconPosition.Middle,
+              position: 'middle',
               marginLeft: 8,
               marginTop: 7,
               marginRight: 0,
@@ -395,7 +395,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
             },
             {
               id: 'setting',
-              position: TooltipIconPosition.Middle,
+              position: 'middle',
               marginLeft: 6,
               marginTop: 7,
               marginBottom: 0,
@@ -414,7 +414,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
             },
             {
               id: 'close',
-              position: TooltipIconPosition.Middle,
+              position: 'middle',
               marginLeft: 6,
               marginTop: 7,
               marginRight: 0,
