@@ -14,7 +14,7 @@
 
 import { KLineData, Styles, DeepPartial } from 'klinecharts'
 
-export interface SymbolInfo {
+export interface SymbolOptions {
   ticker: string
   name?: string
   shortName?: string
@@ -27,7 +27,7 @@ export interface SymbolInfo {
   logo?: string
 }
 
-export interface Period {
+export interface PeriodOptions {
   multiplier: number
   timespan: string
   text: string
@@ -36,10 +36,10 @@ export interface Period {
 export type DatafeedSubscribeCallback = (data: KLineData) => void
 
 export interface Datafeed {
-  searchSymbols (search?: string): Promise<SymbolInfo[]>
-  getHistoryKLineData (symbol: SymbolInfo, period: Period, from: number, to: number): Promise<KLineData[]>
-  subscribe (symbol: SymbolInfo, period: Period, callback: DatafeedSubscribeCallback): void
-  unsubscribe (symbol: SymbolInfo, period: Period): void
+  searchSymbols (search?: string): Promise<SymbolOptions[]>
+  getHistoryKLineData (symbol: SymbolOptions, period: PeriodOptions, from: number, to: number): Promise<KLineData[]>
+  subscribe (symbol: SymbolOptions, period: PeriodOptions, callback: DatafeedSubscribeCallback): void
+  unsubscribe (symbol: SymbolOptions, period: PeriodOptions): void
 }
 
 export interface ChartProOptions {
@@ -49,9 +49,9 @@ export interface ChartProOptions {
   theme?: string
   locale?: string
   drawingBarVisible?: boolean
-  symbol: SymbolInfo
-  period: Period
-  periods?: Period[]
+  symbol: SymbolOptions
+  period: PeriodOptions
+  periods?: PeriodOptions[]
   timezone?: string
   mainIndicators?: string[]
   subIndicators?: string[]
@@ -67,8 +67,8 @@ export interface ChartPro {
   getLocale(): string
   setTimezone(timezone: string): void
   getTimezone(): string
-  setSymbol(symbol: SymbolInfo): void
-  getSymbol(): SymbolInfo
-  setPeriod(period: Period): void
-  getPeriod(): Period
+  setSymbol(symbol: SymbolOptions): void
+  getSymbol(): SymbolOptions
+  setPeriod(period: PeriodOptions): void
+  getPeriod(): PeriodOptions
 }
