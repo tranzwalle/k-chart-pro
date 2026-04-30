@@ -90,10 +90,35 @@ function createIndicator (widget: Nullable<Chart>, indicatorName: string, isStac
         const dataIndex = crosshair?.dataIndex ?? -1
         const result = indicator.result ?? []
         const data = result[dataIndex] as Record<string, number> | undefined
-        legends = indicator.figures.map((figure: any) => {
+        const indicatorStyles = (styles.indicator as Record<string, any>) ?? {}
+        const lineColors = indicatorStyles.line?.colors ?? []
+        const barColors = indicatorStyles.bars ?? []
+        const circleColors = indicatorStyles.circles ?? []
+        legends = indicator.figures.map((figure: any, i: number) => {
           const value = data?.[figure.key]
-          const text = typeof value === 'number' ? value.toFixed(2) : ''
-          const color = figure.styles?.color ?? '#929AA5'
+          let text = ''
+          if (typeof value === 'number') {
+            if (indicator.name === 'VOL') {
+              text = `${(value / 10000).toFixed(2)}万`
+            } else {
+              text = value.toFixed(2)
+            }
+          }
+          let color = figure.styles?.color
+          if (!color) {
+            if (figure.type === 'line') {
+              color = lineColors[i % lineColors.length] ?? '#929AA5'
+            } else if (figure.type === 'bar') {
+              const barStyle = barColors[i % barColors.length] ?? {}
+              const barValue = value ?? 0
+              color = barValue > 0 ? (barStyle.upColor ?? '#929AA5') : (barValue < 0 ? (barStyle.downColor ?? '#929AA5') : (barStyle.noChangeColor ?? '#929AA5'))
+            } else if (figure.type === 'circle') {
+              const circleStyle = circleColors[i % circleColors.length] ?? {}
+              color = circleStyle.upColor ?? '#929AA5'
+            } else {
+              color = '#929AA5'
+            }
+          }
           return {
             title: { text: figure.title ?? figure.key, color },
             value: { text, color }
@@ -482,7 +507,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               id: 'visible',
               position: 'middle',
               marginLeft: 8,
-              marginTop: 7,
+              marginTop: 2,
               marginRight: 0,
               marginBottom: 0,
               paddingLeft: 0,
@@ -501,7 +526,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               id: 'invisible',
               position: 'middle',
               marginLeft: 8,
-              marginTop: 7,
+              marginTop: 2,
               marginRight: 0,
               marginBottom: 0,
               paddingLeft: 0,
@@ -520,7 +545,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               id: 'setting',
               position: 'middle',
               marginLeft: 6,
-              marginTop: 7,
+              marginTop: 2,
               marginBottom: 0,
               marginRight: 0,
               paddingLeft: 0,
@@ -539,7 +564,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               id: 'close',
               position: 'middle',
               marginLeft: 6,
-              marginTop: 7,
+              marginTop: 2,
               marginRight: 0,
               marginBottom: 0,
               paddingLeft: 0,
@@ -613,13 +638,14 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
           onSubIndicatorChange={data => {
             const newSubIndicators = { ...subIndicators() }
             if (data.added) {
-              const paneId = createIndicator(widget, data.name)
-              if (paneId) {
+              const paneId = `indicator_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+              const result = createIndicator(widget, data.name, false, { id: paneId })
+              if (result) {
                 // @ts-expect-error
                 newSubIndicators[data.name] = paneId
               }
             } else {
-              if (data.paneId) {
+              if (data.paneId != null && data.paneId !== '') {
                 widget?.removeIndicator({ paneId: data.paneId, name: data.name })
                 // @ts-expect-error
                 delete newSubIndicators[data.name]
