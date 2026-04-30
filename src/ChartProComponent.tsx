@@ -242,6 +242,49 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
       }
     })
 
+    widget?.setStyles({
+      candle: {
+        bar: {
+          upColor: '#F92855',
+          upBorderColor: '#F92855',
+          upWickColor: '#F92855',
+          downColor: '#2DC08E',
+          downBorderColor: '#2DC08E',
+          downWickColor: '#2DC08E',
+        },
+        priceMark: {
+          last: {
+            upColor: '#F92855',
+            downColor: '#2DC08E',
+          }
+        },
+        tooltip: {
+          legend: {
+            template: [
+              { title: { text: 'time', color: '#929AA5' }, value: { text: '{time}', color: '#929AA5' } },
+              { title: { text: 'open', color: '#929AA5' }, value: { text: '{open}', color: '#929AA5' } },
+              { title: { text: 'high', color: '#929AA5' }, value: { text: '{high}', color: '#F92855' } },
+              { title: { text: 'low', color: '#929AA5' }, value: { text: '{low}', color: '#2DC08E' } },
+              { title: { text: 'close', color: '#929AA5' }, value: { text: '{close}', color: '#D4A017' } },
+              { title: { text: 'volume', color: '#929AA5' }, value: { text: '{volume}', color: '#929AA5' } },
+            ]
+          }
+        }
+      },
+      indicator: {
+        ohlc: {
+          upColor: '#F92855',
+          downColor: '#2DC08E',
+        },
+        bars: [
+          { upColor: '#F92855', downColor: '#2DC08E' }
+        ],
+        circles: [
+          { upColor: '#F92855', downColor: '#2DC08E' }
+        ]
+      }
+    })
+
     widget?.setDataLoader({
       getBars: async (params) => {
         if (loading) return
