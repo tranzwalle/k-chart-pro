@@ -16,7 +16,8 @@ import { createSignal, createEffect, onMount, Show, onCleanup, startTransition, 
 
 import {
   init, dispose, utils, Nullable, Chart, OverlayMode, Styles,
-  TooltipFeaturePosition, ActionType, PaneOptions, Indicator, FormatDateType
+  TooltipFeaturePosition, ActionType, PaneOptions, Indicator, FormatDateType,
+  NeighborData, KLineData, CandleStyle, TooltipLegend
 } from 'klinecharts'
 
 import lodashSet from 'lodash/set'
@@ -48,10 +49,12 @@ function createIndicator (widget: Nullable<Chart>, indicatorName: string, isStac
     paneOptions = { ...paneOptions }
   }
   const maDefaultColors = ['#FF6D00', '#2196F3', '#4CAF50', '#9C27B0']
+  const isSubPane = paneOptions?.id !== 'candle_pane'
   return widget?.createIndicator({
     name: indicatorName,
     calcParams,
     styles,
+    precision: isSubPane ? 2 : undefined,
     createTooltipDataSource: ({ indicator, chart, crosshair }) => {
       const icons = []
       const styles = chart.getStyles()
@@ -83,6 +86,19 @@ function createIndicator (widget: Nullable<Chart>, indicatorName: string, isStac
             value: { text, color }
           }
         }) ?? []
+      } else if (Array.isArray(indicator.figures) && indicator.figures.length > 0) {
+        const dataIndex = crosshair?.dataIndex ?? -1
+        const result = indicator.result ?? []
+        const data = result[dataIndex] as Record<string, number> | undefined
+        legends = indicator.figures.map((figure: any) => {
+          const value = data?.[figure.key]
+          const text = typeof value === 'number' ? value.toFixed(2) : ''
+          const color = figure.styles?.color ?? '#929AA5'
+          return {
+            title: { text: figure.title ?? figure.key, color },
+            value: { text, color }
+          }
+        })
       }
       return {
         name: indicator.shortName ?? indicator.name,
@@ -259,15 +275,27 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
           }
         },
         tooltip: {
+          title: {
+            template: '{ticker} {periodText}'
+          },
           legend: {
-            template: [
-              { title: { text: 'time', color: '#929AA5' }, value: { text: '{time}', color: '#929AA5' } },
-              { title: { text: 'open', color: '#929AA5' }, value: { text: '{open}', color: '#929AA5' } },
-              { title: { text: 'high', color: '#929AA5' }, value: { text: '{high}', color: '#F92855' } },
-              { title: { text: 'low', color: '#929AA5' }, value: { text: '{low}', color: '#2DC08E' } },
-              { title: { text: 'close', color: '#929AA5' }, value: { text: '{close}', color: '#D4A017' } },
-              { title: { text: 'volume', color: '#929AA5' }, value: { text: '{volume}', color: '#929AA5' } },
-            ]
+            template: (data: NeighborData<Nullable<KLineData>>, styles: CandleStyle) => {
+              const k = data.current
+              const legends: TooltipLegend[] = []
+              legends.push({ title: 'time', value: '{time}' })
+              legends.push({ title: 'open', value: '{open}' })
+              legends.push({ title: 'high', value: { text: '{high}', color: '#F92855' } })
+              legends.push({ title: 'low', value: { text: '{low}', color: '#2DC08E' } })
+              legends.push({ title: 'close', value: { text: '{close}', color: '#D4A017' } })
+              legends.push({ title: 'volume', value: '{volume}' })
+              const changePct = Number((k as any)?.change_pct ?? 0)
+              const changeColor = changePct >= 0 ? '#F92855' : '#2DC08E'
+              const changeSign = changePct >= 0 ? '+' : ''
+              legends.push({ title: 'change_pct', value: { text: `${changeSign}${changePct.toFixed(2)}%`, color: changeColor } })
+              legends.push({ title: 'amplitude', value: `${Number((k as any)?.amplitude ?? 0).toFixed(2)}%` })
+              legends.push({ title: 'turnover_rate', value: `${Number((k as any)?.turnover_rate ?? 0).toFixed(2)}%` })
+              return legends
+            }
           }
         }
       },
@@ -418,7 +446,8 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
     widget?.setSymbol({
       ticker: s?.ticker ?? '',
       pricePrecision: s?.pricePrecision ?? 2,
-      volumePrecision: s?.volumePrecision ?? 0
+      volumePrecision: s?.volumePrecision ?? 0,
+      periodText: period().text
     })
   })
 
@@ -431,7 +460,8 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
     widget?.setSymbol({
       ticker: s.ticker,
       pricePrecision: s.pricePrecision,
-      volumePrecision: s.volumePrecision
+      volumePrecision: s.volumePrecision,
+      periodText: p.text
     })
     widget?.setPeriod({
       type: p.timespan as any,

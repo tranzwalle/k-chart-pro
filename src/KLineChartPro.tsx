@@ -54,10 +54,10 @@ export default class KLineChartPro implements ChartPro {
           period={options.period}
           periods={
             options.periods ?? [
-              { multiplier: 1, timespan: 'hour', text: '1H' },
-              { multiplier: 1, timespan: 'day', text: 'D' },
-              { multiplier: 1, timespan: 'week', text: 'W' },
-              { multiplier: 1, timespan: 'month', text: 'M' }
+              { multiplier: 1, timespan: 'hour', text: '小时线' },
+              { multiplier: 1, timespan: 'day', text: '日线' },
+              { multiplier: 1, timespan: 'week', text: '周线' },
+              { multiplier: 1, timespan: 'month', text: '月线' }
             ]
           }
           timezone={options.timezone ?? 'Asia/Shanghai'}
